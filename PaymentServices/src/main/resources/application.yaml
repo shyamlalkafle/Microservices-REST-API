@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: PaymentServices
+
+  datasource:
+    url: jdbc:h2:mem:microservices
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8083
+
+user-service:
+  base-url: http://localhost:8081
+
