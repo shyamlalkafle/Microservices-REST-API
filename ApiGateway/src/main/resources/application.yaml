@@ -1,0 +1,62 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service-route
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/users/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: userServiceCB
+                    fallbackUri: forward:/fallback/user-service
+
+            - id: order-service-route
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/orders/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: orderServiceCB
+                    fallbackUri: forward:/fallback/order-service
+
+            - id: payment-service-route
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/payments/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: paymentServiceCB
+                    fallbackUri: forward:/fallback/payment-service
+
+            - id: catch-all-fallback-route
+              uri: http://localhost:9999
+              predicates:
+                - Path=/api/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: noServiceCB
+                    fallbackUri: forward:/fallback/service-not-found
+
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 10s
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
