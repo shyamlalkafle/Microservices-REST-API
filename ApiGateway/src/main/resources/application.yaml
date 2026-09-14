@@ -3,14 +3,15 @@ server:
 
 spring:
   application:
-    name: api-gateway
+    name: API-GATEWAY
   cloud:
     gateway:
       server:
         webflux:
           routes:
             - id: user-service-route
-              uri: http://localhost:8081
+#              uri: http://localhost:8081
+              uri: lb://USER-SERVICE
               predicates:
                 - Path=/api/users/**
               filters:
@@ -20,7 +21,8 @@ spring:
                     fallbackUri: forward:/fallback/user-service
 
             - id: order-service-route
-              uri: http://localhost:8082
+#              uri: http://localhost:8082
+              uri: lb://ORDER-SERVICE
               predicates:
                 - Path=/api/orders/**
               filters:
@@ -30,7 +32,8 @@ spring:
                     fallbackUri: forward:/fallback/order-service
 
             - id: payment-service-route
-              uri: http://localhost:8083
+#              uri: http://localhost:8083
+              uri: lb://PAYMENT-SERVICE
               predicates:
                 - Path=/api/payments/**
               filters:
@@ -48,6 +51,12 @@ spring:
                   args:
                     name: noServiceCB
                     fallbackUri: forward:/fallback/service-not-found
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
 
 resilience4j:
   timelimiter:
