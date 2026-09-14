@@ -1,6 +1,8 @@
 spring:
   application:
     name: USER-SERVICE
+  profiles:
+    active: prod
 
   datasource:
     url: jdbc:h2:mem:microservices
