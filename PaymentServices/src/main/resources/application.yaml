@@ -1,6 +1,6 @@
 spring:
   application:
-    name: PaymentServices
+    name: PAYMENT-SERVICE
 
   datasource:
     url: jdbc:h2:mem:microservices
@@ -21,6 +21,7 @@ spring:
 server:
   port: 8083
 
-user-service:
-  base-url: http://localhost:8081
-
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

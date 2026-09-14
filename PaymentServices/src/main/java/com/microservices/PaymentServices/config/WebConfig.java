@@ -1,8 +1,9 @@
 package com.microservices.PaymentServices.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
@@ -13,7 +14,18 @@ import java.time.Duration;
 public class WebConfig {
 
     @Bean
-    public RestClient userServiceRestClient(@Value("${user-service.base-url}") String userServiceBaseUrl) {
+    @Primary
+    public RestClient.Builder defaultRestClientBuilder() {
+        return buildBaseBuilder();
+    }
+
+    @Bean
+    @LoadBalanced
+    public RestClient.Builder loadBalancedRestClientBuilder() {
+        return buildBaseBuilder();
+    }
+
+    private RestClient.Builder buildBaseBuilder() {
         HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
                 .build();
@@ -21,9 +33,11 @@ public class WebConfig {
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
         factory.setReadTimeout(Duration.ofSeconds(5));
 
-        return RestClient.builder()
-                .baseUrl(userServiceBaseUrl)
-                .requestFactory(factory)
-                .build();
+        return RestClient.builder().requestFactory(factory);
+    }
+
+    @Bean
+    public RestClient userServiceRestClient(@LoadBalanced RestClient.Builder loadBalancedRestClientBuilder) {
+        return loadBalancedRestClientBuilder.baseUrl("http://USER-SERVICE").build();
     }
 }
