@@ -1,15 +1,13 @@
 spring:
   application:
     name: USER-SERVICE
-  profiles:
-    active: prod
 
   datasource:
     url: jdbc:h2:mem:microservices
     driverClassName: org.h2.Driver
     username: sa
     password:
-  
+
   h2:
     console:
       enabled: true
