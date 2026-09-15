@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: config-server
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///D:/Github_professional/Microservices-REST-API/config-repo
+          default-label: master
+
+server:
+  port: 8888
