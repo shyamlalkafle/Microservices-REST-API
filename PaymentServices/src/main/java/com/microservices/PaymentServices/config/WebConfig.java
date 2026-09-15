@@ -38,6 +38,6 @@ public class WebConfig {
 
     @Bean
     public RestClient userServiceRestClient(@LoadBalanced RestClient.Builder loadBalancedRestClientBuilder) {
-        return loadBalancedRestClientBuilder.baseUrl("http://USER-SERVICE").build();
+        return loadBalancedRestClientBuilder.baseUrl("http://user-service").build();
     }
 }

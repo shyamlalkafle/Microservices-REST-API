@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: API-GATEWAY
+    name: api-gateway
   cloud:
     gateway:
       server:
@@ -11,7 +11,7 @@ spring:
           routes:
             - id: user-service-route
 #              uri: http://localhost:8081
-              uri: lb://USER-SERVICE
+              uri: lb://user-service
               predicates:
                 - Path=/api/users/**
               filters:
@@ -22,7 +22,7 @@ spring:
 
             - id: order-service-route
 #              uri: http://localhost:8082
-              uri: lb://ORDER-SERVICE
+              uri: lb://order-service
               predicates:
                 - Path=/api/orders/**
               filters:
@@ -33,7 +33,7 @@ spring:
 
             - id: payment-service-route
 #              uri: http://localhost:8083
-              uri: lb://PAYMENT-SERVICE
+              uri: lb://payment-service
               predicates:
                 - Path=/api/payments/**
               filters:
@@ -57,6 +57,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 5
 
 resilience4j:
   timelimiter:

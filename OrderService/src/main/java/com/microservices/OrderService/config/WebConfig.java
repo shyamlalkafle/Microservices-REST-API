@@ -38,11 +38,11 @@ public class WebConfig {
 
     @Bean
     public RestClient userServiceRestClient(@LoadBalanced RestClient.Builder loadBalancedRestClientBuilder) {
-        return loadBalancedRestClientBuilder.baseUrl("http://USER-SERVICE").build();
+        return loadBalancedRestClientBuilder.baseUrl("http://user-service").build();
     }
 
     @Bean
     public RestClient paymentServiceRestClient(@LoadBalanced RestClient.Builder loadBalancedRestClientBuilder) {
-        return loadBalancedRestClientBuilder.baseUrl("http://PAYMENT-SERVICE").build();
+        return loadBalancedRestClientBuilder.baseUrl("http://payment-service").build();
     }
 }
