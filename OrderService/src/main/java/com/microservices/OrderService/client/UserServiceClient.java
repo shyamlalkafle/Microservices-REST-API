@@ -3,13 +3,16 @@ package com.microservices.OrderService.client;
 import com.microservices.OrderService.exception.UserNotFoundException;
 import com.microservices.OrderService.exception.UserServiceErrorException;
 import com.microservices.OrderService.exception.UserServiceUnavailableException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
 @Component
 public class UserServiceClient {
 
@@ -19,52 +22,38 @@ public class UserServiceClient {
         this.restClient = userServiceRestClient;
     }
 
+    @Retry(name = "userService")
+    @CircuitBreaker(name = "userService", fallbackMethod = "userExistsFallback")
     public boolean userExists(Long userId) {
-        int maxRetries = 2;
-        int retryCount = 0;
-        long retryDelayMillis = 500;
+        try {
+            Boolean exists = restClient.get()
+                    .uri("/api/users/{id}/exists", userId)
+                    .retrieve()
+                    .body(Boolean.class);
+            return Boolean.TRUE.equals(exists);
 
-        while (retryCount <= maxRetries) {
-            try {
-                Boolean exists = restClient.get()
-                        .uri("/api/users/{id}/exists", userId)
-                        .retrieve()
-                        .body(Boolean.class);
-                return Boolean.TRUE.equals(exists);
-
-            } catch (HttpClientErrorException e) {
-                if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                    throw new UserNotFoundException(
-                            "User with id " + userId + " not found in User Service"
-                    );
-                }
-                throw new UserServiceErrorException(
-                        "Client error from User Service: " + e.getStatusCode()
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new UserNotFoundException(
+                        "User with id " + userId + " not found in User Service"
                 );
-
-            } catch (HttpServerErrorException e) {
-                throw new UserServiceErrorException(
-                        "User Service returned server error: " + e.getStatusCode()
-                );
-
-            } catch (ResourceAccessException e) {
-                retryCount++;
-                if (retryCount > maxRetries) {
-                    throw new UserServiceUnavailableException(
-                            "User Service still unreachable after retries", e
-                    );
-                }
-                try {
-                    Thread.sleep(retryDelayMillis);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new UserServiceUnavailableException(
-                            "Retry interrupted while connecting to User Service", ie
-                    );
-                }
             }
-        }
+            throw new UserServiceErrorException(
+                    "Client error from User Service: " + e.getStatusCode()
+            );
 
-        throw new UserServiceUnavailableException("Unable to connect to User Service");
+        } catch (HttpServerErrorException e) {
+            throw new UserServiceErrorException(
+                    "User Service returned server error: " + e.getStatusCode()
+            );
+        }
+    }
+
+    // Fallback signature must match: same params + Throwable, same return type
+    private boolean userExistsFallback(Long userId, Throwable t) {
+        log.warn("Fallback triggered for userId={} due to: {}", userId, t.toString());
+        throw new UserServiceUnavailableException(
+                "User Service is currently unavailable — could not verify user " + userId, t
+        );
     }
 }
