@@ -46,6 +46,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
     }
 
+    @ExceptionHandler(PaymentServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentServiceUnavailableException(
+            PaymentServiceUnavailableException ex, HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Service Unavailable",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
+    }
+
     @ExceptionHandler(UserServiceErrorException.class)
     public ResponseEntity<ErrorResponse> handleUserServiceErrorException(
             UserServiceErrorException ex, HttpServletRequest request) {
