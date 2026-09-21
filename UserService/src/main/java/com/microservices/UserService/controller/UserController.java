@@ -6,6 +6,7 @@ import com.microservices.UserService.dto.UserResponse;
 import com.microservices.UserService.entity.User;
 import com.microservices.UserService.service.UserService;
 import com.microservices.UserService.service.UserServiceImplementation;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequestDto user) {
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequestDto user) {
         User savedUser = userService.createUser(user);
         UserResponse response = userServiceImplementation.mapToResponse(savedUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
