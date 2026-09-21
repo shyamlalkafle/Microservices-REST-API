@@ -13,6 +13,8 @@ public interface OrderService {
     OrderResponse getOrderById(Long id);
 
     OrderResponse createOrder(OrderRequest order);
+    
+    OrderResponse createOrder(OrderRequest order, String idempotencyKey);
 
     void deleteOrder(Long id);
 
