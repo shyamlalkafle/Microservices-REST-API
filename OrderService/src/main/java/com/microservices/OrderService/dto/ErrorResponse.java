@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -15,6 +16,7 @@ public class ErrorResponse {
     private String error;
     private String message;
     private String path;
+    private String traceId;  // Added for debugging
     
     public ErrorResponse(int status, String error, String message, String path) {
         this.timestamp = LocalDateTime.now();
@@ -22,5 +24,6 @@ public class ErrorResponse {
         this.error = error;
         this.message = message;
         this.path = path;
+        this.traceId = UUID.randomUUID().toString();  // Auto-generate traceId
     }
 }
